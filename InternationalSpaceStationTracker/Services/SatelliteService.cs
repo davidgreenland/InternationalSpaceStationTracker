@@ -15,24 +15,24 @@ public async Task<IEnumerable<Satellite>> GetSatellites()
     {
         var response = await Client.GetAsync("satellites");
 
-        var result = await response.Content.ReadAsStringAsync();
+        var json = await response.Content.ReadAsStringAsync();
 
-        return JsonSerializer.Deserialize<IEnumerable<Satellite>>(result) ?? Enumerable.Empty<Satellite>();
+        return JsonSerializer.Deserialize<IEnumerable<Satellite>>(json) ?? Enumerable.Empty<Satellite>();
     }
 
     public async Task<SatelliteDetail> GetSingleSatellite(int id)
     {
-        //var path = HttpUtility.ParseQueryString($"https://api.wheretheiss.at/v1/satellites/{id}");
-        //path["units"] = "miles";
-        //Console.WriteLine(path.ToString());
         var response = await Client.GetAsync($"satellites/{id}&units=miles");
+        var json = await response.Content.ReadAsStringAsync();
 
-        var result = await response.Content.ReadAsStringAsync();
-
-        var a = JsonSerializer.Deserialize<SatelliteDetail>(result);
-
-        return a;
+        return JsonSerializer.Deserialize<SatelliteDetail>(json) ?? new SatelliteDetail();
     }
 
-    public async Task<Location>
+    public async Task<Location> GetLocation(decimal lat, decimal lon)
+    {
+        var response = await Client.GetAsync($"coordinates/{lat},{lon}");
+        var json = await response.Content.ReadAsStringAsync();
+
+        return JsonSerializer.Deserialize<Location>(json) ?? new Location();
+    }
 }
