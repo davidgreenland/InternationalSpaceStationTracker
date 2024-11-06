@@ -27,9 +27,6 @@ namespace InternationalSpaceStationTracker.Models
         [JsonPropertyName("units")]
         public string? Units { get; set; }
 
-        public override string ToString()
-        {
-            return $"{base.ToString()}, Latitude: {Latitude}, Longitude: {Longitude}, Velocity: {Velocity}";
-        }
+        public override string ToString() => $"{base.ToString()}\nLatitude: {Latitude}\nLongitude: {Longitude}\nVelocity: {Velocity:F2} {(Units == "miles" ? "mph" : "kph")}";
     }
 }

@@ -1,6 +1,5 @@
 ﻿using InternationalSpaceStationTracker.Models;
 using System.Text.Json;
-using System.Web;
 
 namespace InternationalSpaceStationTracker.Services;
 
@@ -14,7 +13,6 @@ public class SatelliteService
 public async Task<IEnumerable<Satellite>> GetSatellites()
     {
         var response = await Client.GetAsync("satellites");
-
         var json = await response.Content.ReadAsStringAsync();
 
         return JsonSerializer.Deserialize<IEnumerable<Satellite>>(json) ?? Enumerable.Empty<Satellite>();
@@ -22,7 +20,7 @@ public async Task<IEnumerable<Satellite>> GetSatellites()
 
     public async Task<SatelliteDetail> GetSingleSatellite(int id)
     {
-        var response = await Client.GetAsync($"satellites/{id}&units=miles");
+        var response = await Client.GetAsync($"satellites/{id}?units=miles");
         var json = await response.Content.ReadAsStringAsync();
 
         return JsonSerializer.Deserialize<SatelliteDetail>(json) ?? new SatelliteDetail();
