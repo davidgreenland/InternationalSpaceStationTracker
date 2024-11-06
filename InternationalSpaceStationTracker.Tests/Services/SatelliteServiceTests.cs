@@ -22,7 +22,7 @@ namespace InternationalSpaceStationTracker.Tests.Services
         }
 
         [Test]
-        public async Task GetSatellites_Test()
+        public async Task GetSatellites_ReturnsDataWithExpectedProperties()
         {
             _handlerMock.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
@@ -38,6 +38,41 @@ namespace InternationalSpaceStationTracker.Tests.Services
             Assert.That(result.Count(), Is.EqualTo(1));
             Assert.That(testSatellite.Name, Is.EqualTo("testSatellite"));
             Assert.That(testSatellite.Id, Is.EqualTo(12345));
+        }
+        
+        [Test]
+        public async Task GetSatellites_WhenDataSetMoreThanOne_ReturnsAsExpected()
+        {
+            _handlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage()
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(MockSatelliteData.GetLargerSatelliteDataSet())
+                });
+
+            var result = await _satelliteService.GetSatellites();
+            var testSatellite = result.ElementAt(2);
+
+            Assert.That(result.Count(), Is.EqualTo(3));
+            Assert.That(testSatellite.Name, Is.EqualTo("testSatellite3"));
+            Assert.That(testSatellite.Id, Is.EqualTo(10003));
+        }
+
+        [Test]
+        public async Task GetSatellites_WhenDataSetEmpty_ReturnsAnEmptyArray()
+        {
+            _handlerMock.Protected()
+    .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+    .ReturnsAsync(new HttpResponseMessage()
+    {
+        StatusCode = HttpStatusCode.OK,
+        Content = new StringContent(MockSatelliteData.GetEmptySatelliteDataSet())
+    });
+
+            var result = await _satelliteService.GetSatellites();
+
+            Assert.That(result.Count(), Is.EqualTo(0));
         }
     }
 }
