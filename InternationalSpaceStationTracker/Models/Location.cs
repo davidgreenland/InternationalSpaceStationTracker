@@ -12,7 +12,7 @@ public class Location
     [JsonPropertyName("timezone_id")]
     public string? TimezoneId { get; set; }
     [JsonPropertyName("offset")]
-    public int Offset { get; set; }
+    public decimal Offset { get; set; }
     [JsonPropertyName("country_code")]
     public string? CountryCode { get; set; }
     [JsonPropertyName("map_url")]

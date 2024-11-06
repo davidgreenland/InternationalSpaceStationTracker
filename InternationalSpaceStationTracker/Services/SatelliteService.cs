@@ -5,22 +5,26 @@ namespace InternationalSpaceStationTracker.Services;
 
 public class SatelliteService
 {
-    private static readonly HttpClient Client = new()
+    private readonly HttpClient _httpClient = new();
+
+    public SatelliteService(HttpClient httpClient)
     {
-        BaseAddress = new Uri("https://api.wheretheiss.at/v1/")
-    };
+        _httpClient = httpClient;
+        _httpClient.BaseAddress = new Uri("https://api.wheretheiss.at/v1/");
+    }
 
 public async Task<IEnumerable<Satellite>> GetSatellites()
     {
-        var response = await Client.GetAsync("satellites");
+        var response = await _httpClient.GetAsync("satellites");
         var json = await response.Content.ReadAsStringAsync();
+        Console.WriteLine(json);
 
         return JsonSerializer.Deserialize<IEnumerable<Satellite>>(json) ?? Enumerable.Empty<Satellite>();
     }
 
     public async Task<SatelliteDetail> GetSingleSatellite(int id)
     {
-        var response = await Client.GetAsync($"satellites/{id}?units=miles");
+        var response = await _httpClient.GetAsync($"satellites/{id}?units=miles");
         var json = await response.Content.ReadAsStringAsync();
 
         return JsonSerializer.Deserialize<SatelliteDetail>(json) ?? new SatelliteDetail();
@@ -28,7 +32,7 @@ public async Task<IEnumerable<Satellite>> GetSatellites()
 
     public async Task<Location> GetLocation(decimal lat, decimal lon)
     {
-        var response = await Client.GetAsync($"coordinates/{lat},{lon}");
+        var response = await _httpClient.GetAsync($"coordinates/{lat},{lon}");
         var json = await response.Content.ReadAsStringAsync();
 
         return JsonSerializer.Deserialize<Location>(json) ?? new Location();
