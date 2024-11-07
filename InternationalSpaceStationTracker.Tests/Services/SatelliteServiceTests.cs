@@ -26,9 +26,8 @@ namespace InternationalSpaceStationTracker.Tests.Services
         {
             _handlerMock.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage()
-                {
-                    StatusCode = HttpStatusCode.OK,
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+                { 
                     Content = new StringContent(MockSatelliteData.GetSatellite())
                 });
 
@@ -141,7 +140,7 @@ namespace InternationalSpaceStationTracker.Tests.Services
 
             var result = await _satelliteService.GetLocation(9999, 9999);
 
-            Assert.That(result, Is.EqualTo(null));
+            Assert.That(result, Is.Null);
         }
     }
 }

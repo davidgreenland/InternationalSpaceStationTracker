@@ -30,7 +30,7 @@ public class Location
 
     private string GetCountry()
     {
-        if (String.IsNullOrEmpty(CountryCode) || CountryCode == "??")
+        if (string.IsNullOrEmpty(CountryCode) || IsOcean())
         {
             return "Country unknown";
         }
