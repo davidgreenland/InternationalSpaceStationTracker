@@ -29,7 +29,7 @@ namespace InternationalSpaceStationTracker.Tests.Services
                 .ReturnsAsync(new HttpResponseMessage()
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(MockSatelliteData.GetSatelliteData())
+                    Content = new StringContent(MockSatelliteData.GetSatellite())
                 });
 
             var result = await _satelliteService.GetSatellites();
@@ -48,7 +48,7 @@ namespace InternationalSpaceStationTracker.Tests.Services
                 .ReturnsAsync(new HttpResponseMessage()
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(MockSatelliteData.GetLargerSatelliteDataSet())
+                    Content = new StringContent(MockSatelliteData.GetLargerSatelliteSet())
                 });
 
             var result = await _satelliteService.GetSatellites();
@@ -63,16 +63,52 @@ namespace InternationalSpaceStationTracker.Tests.Services
         public async Task GetSatellites_WhenDataSetEmpty_ReturnsAnEmptyArray()
         {
             _handlerMock.Protected()
-    .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-    .ReturnsAsync(new HttpResponseMessage()
-    {
-        StatusCode = HttpStatusCode.OK,
-        Content = new StringContent(MockSatelliteData.GetEmptySatelliteDataSet())
-    });
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(MockSatelliteData.GetEmptySatelliteSet())
+            });
 
             var result = await _satelliteService.GetSatellites();
 
             Assert.That(result.Count(), Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task GetSingleSatellite_WhenGivenAnId_ReturnsDetailedData()
+        {
+            _handlerMock.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(MockSatelliteData.GetSingleSatellite())
+            });
+
+            var result = await _satelliteService.GetSingleSatellite(10001);
+
+            Assert.That(result.Id, Is.EqualTo(10001));
+            Assert.That(result.Latitude, Is.EqualTo(-16.0123456789));
+            Assert.That(result.Longitude, Is.EqualTo(-125.0123456789));
+            Assert.That(result.Velocity, Is.EqualTo(17145.0123456789));
+            Assert.That(result.Units, Is.EqualTo("miles"));
+        }
+
+        [Test]
+        public async Task GetSingleSatellite_WhenGivenAnInvalidId_Handles404()
+        {
+            _handlerMock.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Content = new StringContent(MockSatelliteData.GetInvalidSatelliteID())
+            });
+
+            var result = await _satelliteService.GetSingleSatellite(9999);
+
+            Assert.That(result, Is.EqualTo(null));
         }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using InternationalSpaceStationTracker.Models;
+using System.Net;
 using System.Text.Json;
 
 namespace InternationalSpaceStationTracker.Services;
 
 public class SatelliteService
 {
-    private readonly HttpClient _httpClient = new();
+    private readonly HttpClient _httpClient;
 
     public SatelliteService(HttpClient httpClient)
     {
@@ -17,15 +18,20 @@ public async Task<IEnumerable<Satellite>> GetSatellites()
     {
         var response = await _httpClient.GetAsync("satellites");
         var json = await response.Content.ReadAsStringAsync();
-        Console.WriteLine(json);
 
         return JsonSerializer.Deserialize<IEnumerable<Satellite>>(json) ?? Enumerable.Empty<Satellite>();
     }
 
-    public async Task<SatelliteDetail> GetSingleSatellite(int id)
+    public async Task<SatelliteDetail?> GetSingleSatellite(int id)
     {
         var response = await _httpClient.GetAsync($"satellites/{id}?units=miles");
         var json = await response.Content.ReadAsStringAsync();
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            Console.WriteLine(JsonSerializer.Deserialize<ErrorReponse>(json));
+            return null;
+        }
 
         return JsonSerializer.Deserialize<SatelliteDetail>(json) ?? new SatelliteDetail();
     }

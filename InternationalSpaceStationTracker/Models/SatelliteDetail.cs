@@ -17,7 +17,7 @@ namespace InternationalSpaceStationTracker.Models
         [JsonPropertyName("footprint")]
         public decimal Footprint { get; set; }
         [JsonPropertyName("timestamp")]
-        public decimal Timestamp { get; set; }
+        public long Timestamp { get; set; }
         [JsonPropertyName("daynum")]
         public decimal DayNum { get; set; }
         [JsonPropertyName("solar_lat")]
