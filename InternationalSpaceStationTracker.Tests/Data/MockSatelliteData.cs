@@ -1,4 +1,5 @@
-﻿namespace InternationalSpaceStationTracker.Tests.Data;
+﻿
+namespace InternationalSpaceStationTracker.Tests.Data;
 public class MockSatelliteData
 {
     public static string GetSatellite()
@@ -65,6 +66,30 @@ public class MockSatelliteData
         {
             "error": "satellite not found",
             "status": 404
+        }
+        """;
+    }
+
+    internal static string GetValidLocation()
+    {
+        return """
+        {
+            "latitude":"36.892276895945",
+            "longitude":"140.60862181833",
+            "timezone_id":"Asia\/Tokyo",
+            "offset":9,
+            "country_code":"JP",
+            "map_url":"example.map.url"
+        }
+        """;
+    }
+
+    public static string GetInvalidLocation()
+    {
+        return """
+        {
+            "error": "satellite not found",
+            "status": 400
         }
         """;
     }

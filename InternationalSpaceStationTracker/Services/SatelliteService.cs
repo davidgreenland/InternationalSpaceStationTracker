@@ -36,10 +36,16 @@ public async Task<IEnumerable<Satellite>> GetSatellites()
         return JsonSerializer.Deserialize<SatelliteDetail>(json) ?? new SatelliteDetail();
     }
 
-    public async Task<Location> GetLocation(decimal lat, decimal lon)
+    public async Task<Location?> GetLocation(decimal lat, decimal lon)
     {
         var response = await _httpClient.GetAsync($"coordinates/{lat},{lon}");
         var json = await response.Content.ReadAsStringAsync();
+
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+        {
+            Console.WriteLine(JsonSerializer.Deserialize<ErrorReponse>(json));
+            return null;
+        }
 
         return JsonSerializer.Deserialize<Location>(json) ?? new Location();
     }

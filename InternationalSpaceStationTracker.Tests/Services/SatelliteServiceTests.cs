@@ -110,5 +110,38 @@ namespace InternationalSpaceStationTracker.Tests.Services
 
             Assert.That(result, Is.EqualTo(null));
         }
+
+        [Test]
+        public async Task GetLocation_WhenGivenValidCoordinates_ReturnsExpected()
+        {
+            _handlerMock.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(MockSatelliteData.GetValidLocation())
+            });
+
+            var result = await _satelliteService.GetLocation(36.892276895945m, 140.60862181833m);
+
+            Assert.That(result.CountryCode, Is.EqualTo("JP"));
+            Assert.That(result.MapUrl, Is.EqualTo("example.map.url"));
+        }
+
+        [Test]
+        public async Task GetLocation_WhenGivenInValidCoordinates_Handles400()
+        {
+            _handlerMock.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Content = new StringContent(MockSatelliteData.GetInvalidLocation())
+            });
+
+            var result = await _satelliteService.GetLocation(9999, 9999);
+
+            Assert.That(result, Is.EqualTo(null));
+        }
     }
 }
