@@ -11,7 +11,7 @@ public class Satellite
 
     public bool IsIss()
     {
-        return Id == 25544;
+        return Name == "iss";
     }
 
     public override string ToString()
