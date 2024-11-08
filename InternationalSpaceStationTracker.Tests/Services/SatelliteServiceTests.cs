@@ -107,7 +107,7 @@ namespace InternationalSpaceStationTracker.Tests.Services
 
             var result = await _satelliteService.GetSingleSatellite(9999);
 
-            Assert.That(result, Is.EqualTo(null));
+            Assert.That(result, Is.Null);
         }
 
         [Test]
