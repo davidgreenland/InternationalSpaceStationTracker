@@ -1,8 +1,8 @@
 ﻿using InternationalSpaceStationTracker.Services;
 using InternationalSpaceStationTracker.Tests.Data;
 using Moq;
-using Moq.Protected;
 using NUnit.Framework;
+using Polly;
 using System.Net;
 
 namespace InternationalSpaceStationTracker.Tests.Services
@@ -10,24 +10,29 @@ namespace InternationalSpaceStationTracker.Tests.Services
     public class SatelliteServiceTests
     {
         private SatelliteService _satelliteService;
+        private Mock<IHttpClientFactory> _clientFactoryMock;
         private HttpClient _httpClient;
         private Mock<HttpMessageHandler> _handlerMock;
+        private Mock<IAsyncPolicy<HttpResponseMessage>> _asyncPolicyMock;
 
         [SetUp]
         public void Setup()
         {
             _handlerMock = new Mock<HttpMessageHandler>();
             _httpClient = new HttpClient(_handlerMock.Object);
-            _satelliteService = new SatelliteService(_httpClient);
+            _clientFactoryMock = new Mock<IHttpClientFactory>();
+            _clientFactoryMock.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(_httpClient);
+            _asyncPolicyMock = new Mock<IAsyncPolicy<HttpResponseMessage>>();
+            _satelliteService = new SatelliteService(_clientFactoryMock.Object, _asyncPolicyMock.Object);
         }
 
         [Test]
         public async Task GetSatellites_ReturnsDataWithExpectedProperties()
         {
-            _handlerMock.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            _asyncPolicyMock
+                .Setup(policy => policy.ExecuteAsync(It.IsAny<Func<Task<HttpResponseMessage>>>()))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
-                { 
+                {
                     Content = new StringContent(MockSatelliteData.GetSatellite())
                 });
 
@@ -42,11 +47,10 @@ namespace InternationalSpaceStationTracker.Tests.Services
         [Test]
         public async Task GetSatellites_WhenDataSetMoreThanOne_ReturnsAsExpected()
         {
-            _handlerMock.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage()
+            _asyncPolicyMock
+                .Setup(policy => policy.ExecuteAsync(It.IsAny<Func<Task<HttpResponseMessage>>>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    StatusCode = HttpStatusCode.OK,
                     Content = new StringContent(MockSatelliteData.GetLargerSatelliteSet())
                 });
 
@@ -61,13 +65,12 @@ namespace InternationalSpaceStationTracker.Tests.Services
         [Test]
         public async Task GetSatellites_WhenDataSetEmpty_ReturnsAnEmptyArray()
         {
-            _handlerMock.Protected()
-            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(MockSatelliteData.GetEmptySatelliteSet())
-            });
+            _asyncPolicyMock
+                .Setup(policy => policy.ExecuteAsync(It.IsAny<Func<Task<HttpResponseMessage>>>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(MockSatelliteData.GetEmptySatelliteSet())
+                });
 
             var result = await _satelliteService.GetSatellites();
 
@@ -77,13 +80,12 @@ namespace InternationalSpaceStationTracker.Tests.Services
         [Test]
         public async Task GetSingleSatellite_WhenGivenAnId_ReturnsDetailedData()
         {
-            _handlerMock.Protected()
-            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(MockSatelliteData.GetSingleSatellite())
-            });
+            _asyncPolicyMock
+                .Setup(policy => policy.ExecuteAsync(It.IsAny<Func<Task<HttpResponseMessage>>>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(MockSatelliteData.GetSingleSatellite())
+                });
 
             var result = await _satelliteService.GetSingleSatellite(10001);
 
@@ -95,15 +97,15 @@ namespace InternationalSpaceStationTracker.Tests.Services
         }
 
         [Test]
-        public async Task GetSingleSatellite_WhenGivenAnInvalidId_Handles404()
+        public async Task GetSingleSatellite_WhenGivenAnInvalidId_ReturnsNull()
         {
-            _handlerMock.Protected()
-            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage()
-            {
-                StatusCode = HttpStatusCode.NotFound,
-                Content = new StringContent(MockSatelliteData.GetInvalidSatelliteID())
-            });
+            _asyncPolicyMock
+                .Setup(policy => policy.ExecuteAsync(It.IsAny<Func<Task<HttpResponseMessage>>>()))
+                .ReturnsAsync(new HttpResponseMessage()
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Content = new StringContent(MockSatelliteData.GetInvalidSatelliteID())
+                });
 
             var result = await _satelliteService.GetSingleSatellite(9999);
 
@@ -113,13 +115,13 @@ namespace InternationalSpaceStationTracker.Tests.Services
         [Test]
         public async Task GetLocation_WhenGivenValidCoordinates_ReturnsExpected()
         {
-            _handlerMock.Protected()
-            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(MockSatelliteData.GetValidLocation())
-            });
+            _asyncPolicyMock
+                .Setup(policy => policy.ExecuteAsync(It.IsAny<Func<Task<HttpResponseMessage>>>()))
+                .ReturnsAsync(new HttpResponseMessage()
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(MockSatelliteData.GetValidLocation())
+                });
 
             var result = await _satelliteService.GetLocation(36.892276895945m, 140.60862181833m);
 
@@ -130,13 +132,13 @@ namespace InternationalSpaceStationTracker.Tests.Services
         [Test]
         public async Task GetLocation_WhenGivenInValidCoordinates_Handles400()
         {
-            _handlerMock.Protected()
-            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage()
-            {
-                StatusCode = HttpStatusCode.BadRequest,
-                Content = new StringContent(MockSatelliteData.GetInvalidLocation())
-            });
+            _asyncPolicyMock
+                .Setup(policy => policy.ExecuteAsync(It.IsAny<Func<Task<HttpResponseMessage>>>()))
+                .ReturnsAsync(new HttpResponseMessage()
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Content = new StringContent(MockSatelliteData.GetInvalidLocation())
+                });
 
             var result = await _satelliteService.GetLocation(9999, 9999);
 
