@@ -101,9 +101,8 @@ namespace InternationalSpaceStationTracker.Tests.Services
         {
             _asyncPolicyMock
                 .Setup(policy => policy.ExecuteAsync(It.IsAny<Func<Task<HttpResponseMessage>>>()))
-                .ReturnsAsync(new HttpResponseMessage()
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound)
                 {
-                    StatusCode = HttpStatusCode.NotFound,
                     Content = new StringContent(MockSatelliteData.GetInvalidSatelliteID())
                 });
 
@@ -117,9 +116,8 @@ namespace InternationalSpaceStationTracker.Tests.Services
         {
             _asyncPolicyMock
                 .Setup(policy => policy.ExecuteAsync(It.IsAny<Func<Task<HttpResponseMessage>>>()))
-                .ReturnsAsync(new HttpResponseMessage()
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    StatusCode = HttpStatusCode.OK,
                     Content = new StringContent(MockSatelliteData.GetValidLocation())
                 });
 
@@ -134,9 +132,8 @@ namespace InternationalSpaceStationTracker.Tests.Services
         {
             _asyncPolicyMock
                 .Setup(policy => policy.ExecuteAsync(It.IsAny<Func<Task<HttpResponseMessage>>>()))
-                .ReturnsAsync(new HttpResponseMessage()
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest)
                 {
-                    StatusCode = HttpStatusCode.BadRequest,
                     Content = new StringContent(MockSatelliteData.GetInvalidLocation())
                 });
 
