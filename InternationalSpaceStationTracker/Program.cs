@@ -23,8 +23,7 @@ var serviceProvider = services.BuildServiceProvider();
 var satelliteService = serviceProvider.GetService<ISatelliteService>();
 
 var satellites = await satelliteService.GetSatellites();
-//var iss = await satelliteService.GetSingleSatellite(satellites.First(x => x.IsIss()).Id);
-var iss = await satelliteService.GetSingleSatellite(9999);
+var iss = await satelliteService.GetSingleSatellite(satellites.First(x => x.IsIss()).Id);
 
 Console.WriteLine(iss);
 
